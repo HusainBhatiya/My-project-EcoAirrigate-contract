@@ -1,0 +1,55 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract EcoAIrrigate {
+
+    // Owner of the contract
+    address public owner;
+
+    // Mapping to store water usage per user (address)
+    mapping(address => uint256) public waterUsage;
+
+    // Event triggered when water is used
+    event WaterUsed(address indexed user, uint256 amount);
+
+    // Event triggered when irrigation is triggered
+    event IrrigationStarted(address indexed user);
+
+    // Event triggered when sensor data is logged
+    event SensorDataLogged(address indexed sensorAddress, string dataType, uint256 dataValue);
+
+    // Modifier to allow only the owner to perform specific functions
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can perform this action");
+        _;
+    }
+
+    constructor() {
+        owner = msg.sender;  // Set contract deployer as owner
+    }
+
+    // Function to log water usage
+    function logWaterUsage(address user, uint256 amount) public onlyOwner {
+        waterUsage[user] += amount;
+        emit WaterUsed(user, amount);
+    }
+
+    // Function to trigger irrigation for a user/plot
+    function startIrrigation(address user) public onlyOwner {
+        // Logic to trigger irrigation (e.g., interacting with IoT systems off-chain)
+        emit IrrigationStarted(user);
+    }
+
+    // Function to log sensor data on-chain
+    function logSensorData(address sensorAddress, string memory dataType, uint256 dataValue) public onlyOwner {
+        emit SensorDataLogged(sensorAddress, dataType, dataValue);
+    }
+
+    // Function to withdraw Ether sent to the contract
+    function withdrawFunds() public onlyOwner {
+        payable(owner).transfer(address(this).balance);
+    }
+
+    // Fallback function to receive Ether
+    receive() external payable {}
+}
